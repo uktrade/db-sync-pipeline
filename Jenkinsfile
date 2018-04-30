@@ -39,15 +39,13 @@ pipeline {
                 sh "cf login -a ${env.GDS_PAAS} -u ${gds_user} -p ${gds_pass} -o ${src[0]} -s ${src[1]}"
               }
               sh """
-                cf conduit ${src[2]} -- pg_dump -O -x -c --if-exists -s -f ${src[2]}-schema-${tempfile}.sql
-                cf conduit ${src[2]} -- pg_dump -O -x -a -f ${src[2]}-data-${tempfile}.sql
+                cf conduit ${src[2]} -- pg_dump -O -x -c --if-exists --disable-triggers -f ${src[2]}-${tempfile}.sql
               """
 
               sh "cf target -o ${dest[0]} -s ${dest[1]}"
 
               sh """
-                cf conduit ${dest[2]} -- psql < ${src[2]}-schema-${tempfile}.sql
-                cf conduit ${dest[2]} -- psql < ${src[2]}-data-${tempfile}.sql
+                cf conduit ${dest[2]} -- psql < ${src[2]}-${tempfile}.sql
               """
             }
           }
